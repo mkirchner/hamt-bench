@@ -13,7 +13,7 @@ PERF_SRCS := \
 PERF_OBJS := $(PERF_SRCS:%=$(BUILD_DIR)/%.o)
 PERF_DEPS := $(PERF_OBJS:.o=.d)
 
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3 -Rpass=tailcallelim
 #LDFLAGS ?= -luuid
 
 hamt: $(BUILD_DIR)/bench-hamt

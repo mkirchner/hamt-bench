@@ -82,7 +82,7 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t
     words_free(words, scale);
 }
 
-static void perf_query_table(const char *benchmark_id, const time_t timestamp, size_t table_size, size_t reps)
+static void perf_query(const char *benchmark_id, const time_t timestamp, size_t table_size, size_t reps)
 {
     char **words = NULL;
     char **shuffled = NULL;
@@ -116,49 +116,60 @@ static void perf_query_table(const char *benchmark_id, const time_t timestamp, s
     words_free(words, table_size);
 }
 
-static void perf_rem_table(const char* benchmark_id, const time_t timestamp, size_t reps)
+static void perf_remove(const char *benchmark_id, const time_t timestamp, size_t scale, size_t reps)
 {
     char **words = NULL;
     char **shuffled = NULL;
     HAMT t;
 
-    words_load(&words, WORDS_MAX);
+    words_load_numbers(&words, 0, scale);
+    /* remove 1% of scale words for test */
+    size_t n_remove = scale * 0.01;
 
-    /* load table */
-    t = hamt_create(my_keyhash_string, my_keycmp_string,
-                    &hamt_allocator_default);
-    for (size_t i = 0; i < WORDS_MAX; i++) {
-        hamt_set(t, words[i], words[i]);
-    }
-
-    struct TimeInterval ti_rem;
+    struct TimeInterval ti_remove;
     for (size_t i = 0; i < reps; ++i) {
-        shuffled = words_create_shuffled_refs(words, WORDS_MAX);
-        timer_start(&ti_rem);
-        for (size_t i = 0; i < WORDS_MAX; i++) {
+        /* create new HAMT */
+        t = hamt_create(my_keyhash_string, my_keycmp_string,
+                        &hamt_allocator_default);
+        for (size_t i = 0; i < scale; i++) {
+            hamt_set(t, words[i], words[i]);
+        }
+        /* shuffle input data */
+        shuffled = words_create_shuffled_refs(words, scale);
+        timer_start(&ti_remove);
+        /* delete the first n_remove entries */
+        for (size_t i = 0; i < n_remove; i++) {
             hamt_remove(t, words[i]);
         }
-        timer_stop(&ti_rem);
+        timer_stop(&ti_remove);
+        hamt_delete(t);
         words_free_refs(shuffled);
-        print_timer(&ti_rem, timestamp, benchmark_id, i, "rem");
+        double ns_per_remove = timer_nsec(&ti_remove) / (double) n_remove;
+        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i, "remove", scale, ns_per_remove);
     }
 
     for (size_t i = 0; i < reps; ++i) {
-        shuffled = words_create_shuffled_refs(words, WORDS_MAX);
-        timer_start(&ti_rem);
-        for (size_t i = 0; i < WORDS_MAX; i++) {
+        /* create new HAMT */
+        t = hamt_create(my_keyhash_string, my_keycmp_string,
+                        &hamt_allocator_default);
+        for (size_t i = 0; i < scale; i++) {
+            hamt_set(t, words[i], words[i]);
+        }
+        /* shuffle input data */
+        shuffled = words_create_shuffled_refs(words, scale);
+        timer_start(&ti_remove);
+        for (size_t i = 0; i < n_remove; i++) {
             t = hamt_premove(t, words[i]);
         }
-        timer_stop(&ti_rem);
+        timer_stop(&ti_remove);
+        hamt_delete(t);
         words_free_refs(shuffled);
-        print_timer(&ti_rem, timestamp, benchmark_id, i, "rem_p");
+        double ns_per_remove = timer_nsec(&ti_remove) / (double) n_remove;
+        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i, "p_remove", scale, ns_per_remove);
     }
-    /* cleanup */
-    hamt_delete(t);
 
-    words_free(words, WORDS_MAX);
+    words_free(words, scale);
 }
-
 int main(int argc, char **argv)
 {
     /* generate a benchmark id */
@@ -171,15 +182,18 @@ int main(int argc, char **argv)
     time_t now = time(0);
 
     size_t scale[] = {1e3, 1e4, 1e5, 1e6};
-    size_t n_scales = 4; 
+    size_t n_scales = 4;
 
     /* run the performance measurements */
     srand(now);
     for (size_t i = 0; i < n_scales; ++i) {
-        perf_query_table(benchmark_id, now, scale[i], 20);
+        perf_query(benchmark_id, now, scale[i], 20);
     }
     for (size_t i = 0; i < n_scales; ++i) {
         perf_insert(benchmark_id, now, scale[i], 20);
+    }
+    for (size_t i = 0; i < n_scales; ++i) {
+        perf_remove(benchmark_id, now, scale[i], 20);
     }
     return 0;
 }

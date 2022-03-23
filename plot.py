@@ -37,7 +37,7 @@ for m_ix, measurement in enumerate(measurements):
                 & (df2["scale"] == scale)
                 & (df2["measurement"] == measurement)
             ]["ns"]
-            times[ix] = trimmed_mean(data, 0.2)
+            times[ix] = trimmed_mean(data, 0.4)
         axs[m_ix].plot(scales, times, "o-", label=label)
     axs[m_ix].set_xscale("log")
     axs[m_ix].set_ylim(0, 1800)
