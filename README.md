@@ -1,6 +1,8 @@
 libhamt benchmarking tools
 ==========================
 
+![Benchmark results](./benchmark.png)
+
 ## Install
 
 `hamt-bench` contains the `libhamt` sources as a git submodule.

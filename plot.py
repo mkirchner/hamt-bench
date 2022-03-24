@@ -48,4 +48,4 @@ axs[0].legend()
 
 plt.show()
 # plt.tight_layout()
-fig.savefig("perf.png", dpi=300)
+fig.savefig("benchmark.png", dpi=300)
