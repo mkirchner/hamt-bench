@@ -1,0 +1,3 @@
+[submodule "lib/hamt"]
+	path = lib/hamt
+	url = https://github.com/mkirchner/hamt

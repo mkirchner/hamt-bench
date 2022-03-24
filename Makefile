@@ -2,25 +2,26 @@ BUILD_DIR ?= ./build
 SRC_DIRS ?= ./src
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+LIB_DIRS := $(shell find $(SRC_DIRS) -type d)
+LIB_FLAGS := $(addprefix -L,$(LIB_DIRS))
 
-PERF_SRCS := \
-	../hamt/src/hamt.c \
-	../hamt/src/murmur3.c \
-	src/hamt/perf.c \
+HAMT_BENCH_SRCS := \
+	lib/hamt/src/hamt.c \
+	lib/hamt/src/murmur3.c \
+	src/hamt/bench.c \
 	src/utils.c \
 	src/words.c
 
-PERF_OBJS := $(PERF_SRCS:%=$(BUILD_DIR)/%.o)
-PERF_DEPS := $(PERF_OBJS:.o=.d)
+HAMT_BENCH_OBJS := $(HAMT_BENCH_SRCS:%=$(BUILD_DIR)/%.o)
+HAMT_BENCH_DEPS := $(HAMT_BENCH_OBJS:.o=.d)
 
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3 -Rpass=tailcallelim
-#LDFLAGS ?= -luuid
+CCFLAGS ?= -MMD -MP -O3 # -Rpass=tailcallelim
 
 hamt: $(BUILD_DIR)/bench-hamt
 
-$(BUILD_DIR)/bench-hamt: $(PERF_SRCS)
+$(BUILD_DIR)/bench-hamt: $(HAMT_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I../hamt/include $(PERF_SRCS) -o $@ $(LDFLAGS)
+	$(CC) $(CCFLAGS) $(CFLAGS) $(INC_FLAGS) -Ilib/hamt/include $(HAMT_BENCH_SRCS) -o $@ $(LDFLAGS) $(LIB_FLAGS) -lgc
 
 ## c source
 #$(BUILD_DIR)/%.c.o: %.c

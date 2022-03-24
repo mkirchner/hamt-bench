@@ -11,6 +11,12 @@
 #include "../words.h"
 #include "../utils.h"
 
+#include "gc.h"
+
+void nop(void *_) { return; }
+
+struct HamtAllocator hamt_allocator_gc = {GC_malloc, GC_realloc, nop};
+
 static uint32_t my_keyhash_string(const void *key, const size_t gen)
 {
     uint32_t hash = murmur3_32((uint8_t *)key, strlen((const char *)key), gen);
@@ -61,7 +67,7 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t
     for (size_t i = 0; i < reps; ++i) {
         /* create new HAMT */
         t = hamt_create(my_keyhash_string, my_keycmp_string,
-                        &hamt_allocator_default);
+                        &hamt_allocator_gc);
         for (size_t i = 0; i < scale; i++) {
             hamt_set(t, words[i], words[i]);
         }
@@ -151,7 +157,7 @@ static void perf_remove(const char *benchmark_id, const time_t timestamp, size_t
     for (size_t i = 0; i < reps; ++i) {
         /* create new HAMT */
         t = hamt_create(my_keyhash_string, my_keycmp_string,
-                        &hamt_allocator_default);
+                        &hamt_allocator_gc);
         for (size_t i = 0; i < scale; i++) {
             hamt_set(t, words[i], words[i]);
         }
@@ -172,6 +178,9 @@ static void perf_remove(const char *benchmark_id, const time_t timestamp, size_t
 }
 int main(int argc, char **argv)
 {
+    /* initialize garbage collection */
+    GC_INIT();
+
     /* generate a benchmark id */
     uuid_t uuid;
     uuid_generate_random(uuid);
