@@ -1,4 +1,5 @@
 CREATE TABLE IF NOT EXISTS numbers (
+    product text,
     gitcommit text,
     epoch integer,
     benchmark text,
@@ -6,7 +7,7 @@ CREATE TABLE IF NOT EXISTS numbers (
     measurement text,
     scale integer,
     ns real,
-    primary key (gitcommit, epoch, benchmark, repeat, measurement, scale)
+    primary key (product, gitcommit, epoch, benchmark, repeat, measurement, scale)
 );
 CREATE INDEX if not exists ix_numbers_gitcommit on numbers(gitcommit);
 CREATE INDEX if not exists ix_numbers_benchmark on numbers(benchmark);
@@ -15,6 +16,7 @@ CREATE INDEX if not exists ix_numbers_scale on numbers(scale);
 DROP VIEW IF EXISTS summary_stats;
 CREATE VIEW summary_stats as
 select
+    product,
     gitcommit,
     benchmark,
     measurement,
@@ -26,4 +28,4 @@ select
 from
     numbers,
     (select avg(ns) as mu from numbers) as sub
-group by gitcommit, benchmark, measurement, scale;
+group by product, gitcommit, benchmark, measurement, scale;

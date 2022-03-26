@@ -18,7 +18,7 @@ def subplots(i, j):
     return fig, axs
 
 
-query = """SELECT gitcommit || ':' || substr(benchmark, 1, 4) as id, measurement, scale, repeat, ns FROM numbers;"""
+query = """SELECT product || ':' || gitcommit || ':' || substr(benchmark, 1, 4) as id, measurement, scale, repeat, ns FROM numbers;"""
 conn = sqlite3.connect("db/db.sqlite")
 df2 = pd.read_sql_query(query, conn)
 
