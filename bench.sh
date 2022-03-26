@@ -5,6 +5,8 @@ build/bench-hamt | sed -u -e "s/^/"libhamt",$GITCOMMIT,/" > db/import.$$
 
 build/bench-glib | sed -u -e "s/^/"glib2","",/" >> db/import.$$
 
+build/bench-hsearch | sed -u -e "s/^/"hsearch","",/" >> db/import.$$
+
 {
 cat << EOF
 .mode csv

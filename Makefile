@@ -20,11 +20,20 @@ GLIB_BENCH_SRCS := \
 	src/utils.c \
 	src/words.c
 
+HSEARCH_BENCH_SRCS := \
+	src/hsearch/bench.c \
+	src/utils.c \
+	src/words.c
+
 CCFLAGS ?= -MMD -MP -O3 # -Rpass=tailcallelim
+
+all: hamt glib hsearch
 
 hamt: $(BUILD_DIR)/bench-hamt
 
 glib: $(BUILD_DIR)/bench-glib
+
+hsearch: $(BUILD_DIR)/bench-hsearch
 
 $(BUILD_DIR)/bench-hamt: $(HAMT_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
@@ -33,6 +42,10 @@ $(BUILD_DIR)/bench-hamt: $(HAMT_BENCH_SRCS)
 $(BUILD_DIR)/bench-glib: $(GLIB_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
 	$(CC) $(CCFLAGS) -o $@ $(GLIB_BENCH_SRCS) `pkg-config --cflags --libs glib-2.0`
+
+$(BUILD_DIR)/bench-hsearch: $(HSEARCH_BENCH_SRCS)
+	$(MKDIR_P) $(BUILD_DIR)
+	$(CC) $(CCFLAGS) $(CFLAGS) $(INC_FLAGS) $(HSEARCH_BENCH_SRCS) -o $@ $(LDFLAGS) $(LIB_FLAGS)
 
 
 ## c source
