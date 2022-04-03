@@ -109,7 +109,7 @@ static void perf_query(const char *benchmark_id, const time_t timestamp, size_t 
         shuffled = words_create_shuffled_refs(words, table_size);
         timer_start(&ti_query);
         for (size_t i = 0; i < table_size; i++) {
-            hamt_get(t, words[i]);
+            hamt_get(t, shuffled[i]);
         }
         timer_stop(&ti_query);
         words_free_refs(shuffled);

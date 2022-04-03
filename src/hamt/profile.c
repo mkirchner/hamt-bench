@@ -89,6 +89,43 @@ static void profile_insert(const char *benchmark_id, size_t scale)
     words_free(words, scale);
 }
 
+static void profile_query(const char *benchmark_id, size_t scale)
+{
+    char **words = NULL;
+    HAMT t;
+
+    words_load_numbers(&words, 0, scale);
+
+    /* load table */
+    t = hamt_create(my_keyhash_string, my_keycmp_string,
+                    &hamt_allocator_default);
+    for (size_t i = 0; i < scale; i++) {
+        hamt_set(t, words[i], words[i]);
+    }
+
+    /* query the entire tree, 10 times */
+    char **shuffled[10];
+    for (size_t i = 0; i < 10; ++i) {
+        shuffled[i] = words_create_shuffled_refs(words, scale);
+    }
+    char *filename;
+    asprintf(&filename, "hamt-query-%s.prof", benchmark_id);
+    ProfilerStart(filename);
+    for (size_t i = 0; i < 10; ++i) {
+        for (size_t i = 0; i < scale; i++) {
+            hamt_get(t, words[i]);
+        }
+    }
+    ProfilerStop();
+    /* cleanup */
+    for (size_t i = 0; i < 10; ++i) {
+        words_free_refs(shuffled[i]);
+    }
+    hamt_delete(t);
+
+    words_free(words, scale);
+}
+
 int main(int argc, char **argv)
 {
     /* initialize garbage collection */
@@ -106,6 +143,7 @@ int main(int argc, char **argv)
     /* run the performance measurements */
     srand(now);
     profile_insert(benchmark_id, 1e6);
+    profile_query(benchmark_id, 1e6);
     printf("%s\n", benchmark_id);
     return 0;
 }
