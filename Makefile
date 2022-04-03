@@ -25,9 +25,21 @@ HSEARCH_BENCH_SRCS := \
 	src/utils.c \
 	src/words.c
 
-CCFLAGS ?= -MMD -MP -O3 # -Rpass=tailcallelim
+HAMT_PROFILE_SRCS := \
+	lib/hamt/src/hamt.c \
+	lib/hamt/src/murmur3.c \
+	src/hamt/profile.c \
+	src/utils.c \
+	src/words.c
+
+HAMT_PROFILE_OBJS := $(HAMT_PROFILE_SRCS:%=$(BUILD_DIR)/%.o)
+HAMT_PROFILE_DEPS := $(HAMT_PROFILE_OBJS:.o=.d)
+
+CCFLAGS ?= -MMD -MP -O3 -g # -Rpass=tailcallelim
 
 all: hamt glib hsearch
+
+profile: $(BUILD_DIR)/profile-hamt
 
 hamt: $(BUILD_DIR)/bench-hamt
 
@@ -46,6 +58,10 @@ $(BUILD_DIR)/bench-glib: $(GLIB_BENCH_SRCS)
 $(BUILD_DIR)/bench-hsearch: $(HSEARCH_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
 	$(CC) $(CCFLAGS) $(CFLAGS) $(INC_FLAGS) $(HSEARCH_BENCH_SRCS) -o $@ $(LDFLAGS) $(LIB_FLAGS)
+
+$(BUILD_DIR)/profile-hamt: $(HAMT_PROFILE_SRCS)
+	$(MKDIR_P) $(BUILD_DIR)
+	$(CC) $(CCFLAGS) $(CFLAGS) $(INC_FLAGS) -Ilib/hamt/include $(HAMT_PROFILE_SRCS) -o $@ $(LDFLAGS) $(LIB_FLAGS) -lgc `pkg-config --libs libprofiler`
 
 
 ## c source
