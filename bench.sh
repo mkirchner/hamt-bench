@@ -1,9 +1,13 @@
-#! /bin/sh
+#!/bin/sh
 
 GITCOMMIT=`(cd ../hamt && git describe --always)`
 build/bench-hamt | sed -u -e "s/^/"libhamt",$GITCOMMIT,/" > db/import.$$
 
 build/bench-glib | sed -u -e "s/^/"glib2","",/" >> db/import.$$
+
+build/bench-avl | sed -u -e "s/^/"avl","",/" >> db/import.$$
+
+build/bench-rb | sed -u -e "s/^/"rb","",/" >> db/import.$$
 
 build/bench-hsearch | sed -u -e "s/^/"hsearch","",/" >> db/import.$$
 

@@ -25,6 +25,18 @@ HSEARCH_BENCH_SRCS := \
 	src/utils.c \
 	src/words.c
 
+AVL_BENCH_SRCS := \
+	src/avl/bench.c \
+	src/avl/avl.c \
+	src/utils.c \
+	src/words.c
+
+RB_BENCH_SRCS := \
+	src/rb/bench.c \
+	src/rb/rb.c \
+	src/utils.c \
+	src/words.c
+
 HAMT_PROFILE_SRCS := \
 	lib/hamt/src/hamt.c \
 	lib/hamt/src/murmur3.c \
@@ -37,13 +49,17 @@ HAMT_PROFILE_DEPS := $(HAMT_PROFILE_OBJS:.o=.d)
 
 CCFLAGS ?= -MMD -MP -O3 -g # -Rpass=tailcallelim
 
-all: hamt glib hsearch
+all: hamt glib hsearch avl
 
 profile: $(BUILD_DIR)/profile-hamt
 
 hamt: $(BUILD_DIR)/bench-hamt
 
 glib: $(BUILD_DIR)/bench-glib
+
+avl: $(BUILD_DIR)/bench-avl
+
+rb: $(BUILD_DIR)/bench-rb
 
 hsearch: $(BUILD_DIR)/bench-hsearch
 
@@ -54,6 +70,14 @@ $(BUILD_DIR)/bench-hamt: $(HAMT_BENCH_SRCS)
 $(BUILD_DIR)/bench-glib: $(GLIB_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
 	$(CC) $(CCFLAGS) -o $@ $(GLIB_BENCH_SRCS) `pkg-config --cflags --libs glib-2.0`
+
+$(BUILD_DIR)/bench-avl: $(AVL_BENCH_SRCS)
+	$(MKDIR_P) $(BUILD_DIR)
+	$(CC) $(CCFLAGS) -o $@ -Isrc/avl $(AVL_BENCH_SRCS)
+
+$(BUILD_DIR)/bench-rb: $(RB_BENCH_SRCS)
+	$(MKDIR_P) $(BUILD_DIR)
+	$(CC) $(CCFLAGS) -o $@ -Isrc/rb $(RB_BENCH_SRCS)
 
 $(BUILD_DIR)/bench-hsearch: $(HSEARCH_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)

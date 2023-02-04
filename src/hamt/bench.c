@@ -15,7 +15,7 @@
 
 void nop(void *_) { return; }
 
-struct HamtAllocator hamt_allocator_gc = {GC_malloc, GC_realloc, nop};
+struct hamt_allocator hamt_allocator_gc = {GC_malloc, GC_realloc, nop};
 
 static uint32_t my_keyhash_string(const void *key, const size_t gen)
 {
@@ -26,9 +26,7 @@ static uint32_t my_keyhash_string(const void *key, const size_t gen)
 static int my_keycmp_string(const void *lhs, const void *rhs)
 {
     /* expects lhs and rhs to be pointers to 0-terminated strings */
-    size_t nl = strlen((const char *)lhs);
-    size_t nr = strlen((const char *)rhs);
-    return strncmp((const char *)lhs, (const char *)rhs, nl > nr ? nl : nr);
+    return strcmp((const char *)lhs, (const char *)rhs);
 }
 
 static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t scale, size_t reps)
@@ -64,25 +62,25 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t
         printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i, "insert", scale, ns_per_insert);
     }
 
-    for (size_t i = 0; i < reps; ++i) {
-        /* create new HAMT */
-        t = hamt_create(my_keyhash_string, my_keycmp_string,
-                        &hamt_allocator_gc);
-        for (size_t i = 0; i < scale; i++) {
-            hamt_set(t, words[i], words[i]);
-        }
-        /* shuffle input data */
-        shuffled = words_create_shuffled_refs(new_words, scale);
-        timer_start(&ti_insert);
-        for (size_t i = 0; i < n_insert; i++) {
-            t = hamt_pset(t, new_words[i], new_words[i]);
-        }
-        timer_stop(&ti_insert);
-        hamt_delete(t);
-        words_free_refs(shuffled);
-        double ns_per_insert = timer_nsec(&ti_insert) / (double) n_insert;
-        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i, "p_insert", scale, ns_per_insert);
-    }
+//    for (size_t i = 0; i < reps; ++i) {
+//        /* create new HAMT */
+//        t = hamt_create(my_keyhash_string, my_keycmp_string,
+//                        &hamt_allocator_gc);
+//        for (size_t i = 0; i < scale; i++) {
+//            hamt_set(t, words[i], words[i]);
+//        }
+//        /* shuffle input data */
+//        shuffled = words_create_shuffled_refs(new_words, scale);
+//        timer_start(&ti_insert);
+//        for (size_t i = 0; i < n_insert; i++) {
+//            t = hamt_pset(t, new_words[i], new_words[i]);
+//        }
+//        timer_stop(&ti_insert);
+//        hamt_delete(t);
+//        words_free_refs(shuffled);
+//        double ns_per_insert = timer_nsec(&ti_insert) / (double) n_insert;
+//        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i, "p_insert", scale, ns_per_insert);
+//    }
 
     words_free(new_words, n_insert);
     words_free(words, scale);
@@ -190,19 +188,27 @@ int main(int argc, char **argv)
     /* get a timestamp */
     time_t now = time(0);
 
+    size_t scale[] = {1e6};
+    size_t n_scales = 1;
+    /*
     size_t scale[] = {1e3, 1e4, 1e5, 1e6};
     size_t n_scales = 4;
+    */
 
     /* run the performance measurements */
     srand(now);
+    /*
     for (size_t i = 0; i < n_scales; ++i) {
         perf_query(benchmark_id, now, scale[i], 20);
     }
+    */
     for (size_t i = 0; i < n_scales; ++i) {
         perf_insert(benchmark_id, now, scale[i], 20);
     }
+    /*
     for (size_t i = 0; i < n_scales; ++i) {
         perf_remove(benchmark_id, now, scale[i], 20);
     }
+    */
     return 0;
 }
