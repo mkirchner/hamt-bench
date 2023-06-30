@@ -49,7 +49,7 @@ HAMT_PROFILE_DEPS := $(HAMT_PROFILE_OBJS:.o=.d)
 
 CCFLAGS ?= -MMD -MP -O3 -g # -Rpass=tailcallelim
 
-all: hamt glib hsearch avl
+all: hamt glib hsearch avl rb
 
 profile: $(BUILD_DIR)/profile-hamt
 
@@ -99,4 +99,12 @@ clean:
 	$(RM) -r $(BUILD_DIR)
 
 MKDIR_P ?= mkdir -p
+
+## tests
+
+test: test_stats
+
+test_stats: src/stats.c src/stats.h test/test_stats.c
+	mkdir -p build/test
+	$(CC) $(CFLAGS) $(INC_FLAGS) -Wall test/test_stats.c -o build/test/test_stats
 
