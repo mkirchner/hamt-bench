@@ -10,11 +10,11 @@ struct TimeInterval {
     long nsec;
 };
 
-
 void timer_start(struct TimeInterval *ti);
 void timer_stop(struct TimeInterval *ti);
 void timer_continue(struct TimeInterval *ti);
 long timer_nsec(struct TimeInterval *ti);
-void print_timer(struct TimeInterval *ti, const time_t timestamp, const char *benchmark_id, size_t ix, const char *tag);
+void print_timer(struct TimeInterval *ti, const time_t timestamp,
+                 const char *benchmark_id, size_t ix, const char *tag);
 
 #endif

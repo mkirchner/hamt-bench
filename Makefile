@@ -10,7 +10,7 @@ HAMT_BENCH_SRCS := \
 	lib/hamt/src/murmur3.c \
 	src/hamt/bench.c \
 	src/utils.c \
-	src/words.c
+	src/numbers.c
 
 HAMT_BENCH_OBJS := $(HAMT_BENCH_SRCS:%=$(BUILD_DIR)/%.o)
 HAMT_BENCH_DEPS := $(HAMT_BENCH_OBJS:.o=.d)
@@ -18,7 +18,7 @@ HAMT_BENCH_DEPS := $(HAMT_BENCH_OBJS:.o=.d)
 GLIB_BENCH_SRCS := \
 	src/glib/bench.c \
 	src/utils.c \
-	src/words.c
+	src/numbers.c
 
 HSEARCH_BENCH_SRCS := \
 	src/hsearch/bench.c \
@@ -29,13 +29,13 @@ AVL_BENCH_SRCS := \
 	src/avl/bench.c \
 	src/avl/avl.c \
 	src/utils.c \
-	src/words.c
+	src/numbers.c
 
 RB_BENCH_SRCS := \
 	src/rb/bench.c \
 	src/rb/rb.c \
 	src/utils.c \
-	src/words.c
+	src/numbers.c
 
 HAMT_PROFILE_SRCS := \
 	lib/hamt/src/hamt.c \
@@ -49,7 +49,7 @@ HAMT_PROFILE_DEPS := $(HAMT_PROFILE_OBJS:.o=.d)
 
 CCFLAGS ?= -MMD -MP -O3 -g # -Rpass=tailcallelim
 
-all: hamt glib hsearch avl
+all: hamt glib hsearch avl rb
 
 profile: $(BUILD_DIR)/profile-hamt
 
@@ -73,7 +73,7 @@ $(BUILD_DIR)/bench-glib: $(GLIB_BENCH_SRCS)
 
 $(BUILD_DIR)/bench-avl: $(AVL_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
-	$(CC) $(CCFLAGS) -o $@ -Isrc/avl $(AVL_BENCH_SRCS)
+	$(CC) $(CCFLAGS) -o $@ -Isrc/avl -Isrc $(AVL_BENCH_SRCS)
 
 $(BUILD_DIR)/bench-rb: $(RB_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
@@ -99,4 +99,12 @@ clean:
 	$(RM) -r $(BUILD_DIR)
 
 MKDIR_P ?= mkdir -p
+
+## tests
+
+test: test_stats
+
+test_stats: src/stats.c src/stats.h test/test_stats.c
+	mkdir -p build/test
+	$(CC) $(CFLAGS) $(INC_FLAGS) -Wall test/test_stats.c -o build/test/test_stats
 
