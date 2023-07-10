@@ -9,8 +9,8 @@
 
 #include "../../../hamt/include/hamt.h"
 #include "../../../hamt/include/murmur3.h"
-#include "../words.h"
 #include "../utils.h"
+#include "../words.h"
 
 #include "gc.h"
 
@@ -42,7 +42,7 @@ static void profile_insert(const char *benchmark_id, size_t scale)
     words_load_numbers(&words, 0, scale);
     /* insert 10% of scale words for profiling */
     size_t n_insert = scale * 0.1;
-    words_load_numbers(&new_words, scale+1, n_insert);
+    words_load_numbers(&new_words, scale + 1, n_insert);
 
     /* create HAMT */
     t = hamt_create(my_keyhash_string, my_keycmp_string,
@@ -68,8 +68,7 @@ static void profile_insert(const char *benchmark_id, size_t scale)
      * persistent
      */
     /* create new HAMT */
-    t = hamt_create(my_keyhash_string, my_keycmp_string,
-                    &hamt_allocator_gc);
+    t = hamt_create(my_keyhash_string, my_keycmp_string, &hamt_allocator_gc);
     for (size_t i = 0; i < scale; i++) {
         hamt_set(t, words[i], words[i]);
     }
