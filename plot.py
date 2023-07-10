@@ -7,7 +7,7 @@ import numpy as np
 def trimmed_mean(arr, percent):
     n = len(arr)
     k = int(round(n * (float(percent) / 100) / 2))
-    return np.mean(arr[k + 1 : n - k])
+    return np.mean(sorted(arr)[k + 1 : n - k])
 
 
 def subplots(i, j):
@@ -38,14 +38,16 @@ for m_ix, measurement in enumerate(measurements):
                 & (df2["measurement"] == measurement)
             ]["ns"]
             times[ix] = trimmed_mean(data, 0.4)
+        # times /= times[0]
         axs[m_ix].plot(scales, times, "o-", label=label)
     axs[m_ix].set_xscale("log")
+    # axs[m_ix].set_yscale("log")
     axs[m_ix].set_ylim(0, 1800)
     axs[m_ix].set_title(measurement)
 
 axs[0].set_ylabel("ns/op")
 axs[0].legend()
-
+#fig.legend(loc="lower center")
 plt.show()
 # plt.tight_layout()
 fig.savefig("benchmark.png", dpi=300)

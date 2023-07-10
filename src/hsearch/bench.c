@@ -1,14 +1,14 @@
-#include <stdio.h>
 #include <search.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <uuid/uuid.h>
 
-#include "../words.h"
 #include "../utils.h"
+#include "../words.h"
 
-
-static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t scale, size_t reps)
+static void perf_insert(const char *benchmark_id, const time_t timestamp,
+                        size_t scale, size_t reps)
 {
     char **words = NULL;
     char **new_words = NULL;
@@ -17,14 +17,14 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t
     words_load_numbers(&words, 0, scale);
     /* insert 1% of scale words for test */
     size_t n_insert = scale * 0.01;
-    words_load_numbers(&new_words, scale+1, n_insert);
+    words_load_numbers(&new_words, scale + 1, n_insert);
 
     struct TimeInterval ti_insert;
     ENTRY item;
     for (size_t i = 0; i < reps; ++i) {
-        hcreate(2*scale);
+        hcreate(2 * scale);
         for (size_t i = 0; i < scale; i++) {
-            item.key = strdup(words[i]);  /* hdestroy will free the keys */
+            item.key = strdup(words[i]); /* hdestroy will free the keys */
             item.data = words[i];
             if (!hsearch(item, ENTER)) {
                 printf("Failed to insert all items.\n");
@@ -33,8 +33,8 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t
         }
         /* shuffle input data */
         shuffled = words_create_shuffled_refs(new_words, scale);
-        /* duplicate keys since hdestroy() will free() the keys and we don't want
-         * to measure strdup performance in the hot loop */
+        /* duplicate keys since hdestroy() will free() the keys and we don't
+         * want to measure strdup performance in the hot loop */
         char *duped_keys[n_insert];
         for (size_t i = 0; i < n_insert; i++) {
             duped_keys[i] = strdup(new_words[i]);
@@ -53,15 +53,17 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp, size_t
 
         hdestroy();
         words_free_refs(shuffled);
-        double ns_per_insert = timer_nsec(&ti_insert) / (double) n_insert;
-        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i, "insert", scale, ns_per_insert);
+        double ns_per_insert = timer_nsec(&ti_insert) / (double)n_insert;
+        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i,
+               "insert", scale, ns_per_insert);
     }
 
     words_free(new_words, n_insert);
     words_free(words, scale);
 }
 
-static void perf_query(const char *benchmark_id, const time_t timestamp, size_t scale, size_t reps)
+static void perf_query(const char *benchmark_id, const time_t timestamp,
+                       size_t scale, size_t reps)
 {
     char **words = NULL;
     char **shuffled = NULL;
@@ -70,9 +72,9 @@ static void perf_query(const char *benchmark_id, const time_t timestamp, size_t 
     words_load_numbers(&words, 0, scale);
 
     /* load table */
-    hcreate(2*scale); /* make sure we don't need to resize */
+    hcreate(2 * scale); /* make sure we don't need to resize */
     for (size_t i = 0; i < scale; i++) {
-        item.key = strdup(words[i]);  /* hdestroy will free the keys */
+        item.key = strdup(words[i]); /* hdestroy will free the keys */
         item.data = words[i];
         if (!hsearch(item, ENTER)) {
             printf("Failed to insert all items.\n");
@@ -92,7 +94,8 @@ static void perf_query(const char *benchmark_id, const time_t timestamp, size_t 
         timer_stop(&ti_query);
         words_free_refs(shuffled);
         ns_per_query = timer_nsec(&ti_query) / (double)scale;
-        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i, "query", scale, ns_per_query);
+        printf("%ld,\"%s\",%lu,\"%s\",%lu,%f\n", timestamp, benchmark_id, i,
+               "query", scale, ns_per_query);
     }
     /* cleanup */
     hdestroy();
