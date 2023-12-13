@@ -50,7 +50,7 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp,
         /* create new struct hamt **/
         t = hamt_create(my_keyhash_int, my_keycmp_int, &hamt_allocator_default);
         for (size_t i = 0; i < scale; i++) {
-            hamt_set2(t, &numbers[i], &numbers[i]);
+            hamt_set(t, &numbers[i], &numbers[i]);
         }
         /* shuffle input data */
         shuffle_numbers(new_numbers, n_insert);

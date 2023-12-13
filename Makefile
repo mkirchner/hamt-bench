@@ -23,7 +23,7 @@ GLIB_BENCH_SRCS := \
 HSEARCH_BENCH_SRCS := \
 	src/hsearch/bench.c \
 	src/utils.c \
-	src/words.c
+	src/numbers.c
 
 AVL_BENCH_SRCS := \
 	src/avl/bench.c \
@@ -47,7 +47,7 @@ HAMT_PROFILE_SRCS := \
 HAMT_PROFILE_OBJS := $(HAMT_PROFILE_SRCS:%=$(BUILD_DIR)/%.o)
 HAMT_PROFILE_DEPS := $(HAMT_PROFILE_OBJS:.o=.d)
 
-CCFLAGS ?= -MMD -MP -O3 -g # -Rpass=tailcallelim
+CCFLAGS ?= -MMD -MP -O3 # -g # -Rpass=tailcallelim
 
 all: hamt glib hsearch avl rb
 

@@ -96,7 +96,7 @@ static void perf_remove(const char *benchmark_id, const time_t timestamp,
     int *numbers = make_numbers(scale, 0);
     int *rem_numbers = make_numbers(scale, 0);
 
-    /* remove 1% of scale words for test */
+    /* remove 1% of numbers for test */
     size_t n_remove = scale * 0.01;
 
     struct TimeInterval ti_remove;

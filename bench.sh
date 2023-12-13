@@ -9,8 +9,8 @@ echo "avl"
 build/bench-avl | sed -u -e "s/^/"avl","",/" >> db/import.$$
 echo "rb"
 build/bench-rb | sed -u -e "s/^/"rb","",/" >> db/import.$$
-# echo "hsearch"
-# build/bench-hsearch | sed -u -e "s/^/"hsearch","",/" >> db/import.$$
+echo "hsearch"
+build/bench-hsearch | sed -u -e "s/^/"hsearch","",/" >> db/import.$$
 
 {
 cat << EOF

@@ -42,7 +42,7 @@ for m_ix, measurement in enumerate(measurements):
         axs[m_ix].plot(scales, times, "o-", label=label)
     axs[m_ix].set_xscale("log")
     # axs[m_ix].set_yscale("log")
-    axs[m_ix].set_ylim(0, 1800)
+    axs[m_ix].set_ylim(0, 1000)
     axs[m_ix].set_title(measurement)
 
 axs[0].set_ylabel("ns/op")

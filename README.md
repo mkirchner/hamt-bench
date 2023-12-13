@@ -3,6 +3,11 @@ libhamt benchmarking tools
 
 ![Benchmark results](./benchmark.png)
 
+## Todos
+
+* allow experiment/benchmark tagging through argv
+* allow better input control for plotting script
+
 ## Install
 
 `hamt-bench` contains the `libhamt` sources as a git submodule.

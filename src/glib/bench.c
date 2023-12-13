@@ -11,7 +11,7 @@ static void perf_insert(const char *benchmark_id, const time_t timestamp,
 {
     int *numbers = make_numbers(scale, 0);
 
-    /* insert 1% of scale words for test */
+    /* insert 1% of table size numbers for test */
     int n_insert = 0.01 * scale;
     int *new_numbers = make_numbers(n_insert, scale);
 
@@ -80,7 +80,7 @@ static void perf_remove(const char *benchmark_id, const time_t timestamp,
     int *numbers = make_numbers(scale, 0);
     int *rem_numbers = make_numbers(scale, 0);
 
-    /* remove 1% of scale words for test */
+    /* remove 1% of table size numbers for test */
     size_t n_remove = scale * 0.01;
 
     struct TimeInterval ti_remove;
