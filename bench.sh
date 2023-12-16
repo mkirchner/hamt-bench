@@ -1,8 +1,9 @@
 #!/bin/sh
 
-GITCOMMIT=`(cd ../hamt && git describe --always)`
+GIT_BRANCH=`(cd ../hamt && git branch --show-current)`
+GIT_COMMIT=`(cd ../hamt && git describe --always)`
 echo "hamt"
-build/bench-hamt | sed -u -e "s/^/"libhamt",$GITCOMMIT,/" > db/import.$$
+build/bench-hamt | sed -u -e "s/^/"libhamt:$GIT_BRANCH",$GIT_COMMIT,/" > db/import.$$
 echo "glib-hashtable"
 build/bench-glib | sed -u -e "s/^/"glib2","",/" >> db/import.$$
 echo "avl"

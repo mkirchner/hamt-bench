@@ -1,4 +1,5 @@
 CREATE TABLE IF NOT EXISTS numbers (
+    tag text,
     product text,
     gitcommit text,
     epoch integer,
@@ -7,8 +8,9 @@ CREATE TABLE IF NOT EXISTS numbers (
     measurement text,
     scale integer,
     ns real,
-    primary key (product, gitcommit, epoch, benchmark, repeat, measurement, scale)
+    primary key (tag, product, gitcommit, epoch, benchmark, repeat, measurement, scale)
 );
+CREATE INDEX if not exists ix_numbers_tag on numbers(tag);
 CREATE INDEX if not exists ix_numbers_gitcommit on numbers(gitcommit);
 CREATE INDEX if not exists ix_numbers_benchmark on numbers(benchmark);
 CREATE INDEX if not exists ix_numbers_measurement on numbers(measurement);
@@ -16,13 +18,14 @@ CREATE INDEX if not exists ix_numbers_scale on numbers(scale);
 DROP VIEW IF EXISTS summary_stats;
 CREATE VIEW summary_stats as
 select
+    tag, 
     product,
     gitcommit,
     benchmark,
     measurement,
     scale,
     avg(ns) as mean,
-    sqrt(avg((ns - sub.mu) * (ns - sub.mu))) as stddev,
+    avg((ns - sub.mu) * (ns - sub.mu)) as var,
     min(ns) as min,
     max(ns) as max
 from
