@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import numpy as np
 import argparse
+import sys
 
 
 def trim(arr, trim):
@@ -38,7 +39,7 @@ def query_stats(tag):
     measurements = df2["measurement"].unique()
     return df2, labels, scales, measurements
 
-def create_plot(tag):
+def create_plot(tag, outfile, interactive):
     df2, labels, scales, measurements = query_stats(tag)
     fig, axs = subplots(1, len(measurements))
     labels = sorted(labels)
@@ -84,14 +85,57 @@ def create_plot(tag):
     #handles, labels = axs[0].get_legend_handles_labels()
     #fig.legend(handles, labels, loc='outside left upper', frameon=False, draggable=True)
     # fig.tight_layout()
-    plt.show()
-    fig.savefig("benchmark.png", dpi=300, bbox_inches='tight')
+    if interactive:
+        plt.show()
+    if outfile:
+        fig.savefig(outfile, dpi=300, bbox_inches='tight')
+
+def tags_list():
+    conn = sqlite3.connect("db/db.sqlite")
+    query = "SELECT DISTINCT tag FROM numbers order by tag asc"
+    for row in conn.execute(query):
+        print(row[0])
+    conn.close()
+
+def tags_delete(tag):
+    conn = sqlite3.connect("db/db.sqlite")
+    query = "DELETE FROM numbers WHERE tag = ?"
+    n_deleted = conn.execute(query, (tag,)).rowcount
+    conn.commit()
+    conn.close()
+    print(f"Deleted {n_deleted} measurements")
+
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("tag", help="plot all measurements tagged with this tag")
+    parser = argparse.ArgumentParser(description="Manage the HAMT benchmarking results.")
+    subparsers = parser.add_subparsers(dest="command")
+    # add -v and/or other global options before defining the subparsers here
+
+    plot_parser = subparsers.add_parser("plot", help="plot benchmarking results")
+    plot_parser.add_argument("tag", help="plot all measurements tagged with this tag")
+    plot_parser.add_argument("-i", "--interactive", help="display image before storing", action="store_true")
+    plot_parser.add_argument("-o", "--output", help="store the resulting plot to file", required=False, default=None)
+
+    run_parser = subparsers.add_parser("run", help="run benchmarks")
+
+    tags_parser = subparsers.add_parser("tags", help="manage benchmark tags")
+    # FIXME: make them mutually exclusive?
+    tags_parser.add_argument("-l", "--list", help="list available tags", action="store_true")
+    tags_parser.add_argument("-d", "--delete", help="delete all measurements for tag")
+
     args = parser.parse_args()
-    create_plot(args.tag)
+    if args.command == "plot":
+        if not (args.interactive or args.output):
+            plot_parser.error("require at least one of -i and/or -o options")
+            exit(-1)
+        create_plot(args.tag, args.output, args.interactive)
+    elif args.command == "run":
+        run_parser.error("Not implemented yet!")
+    elif args.command == "tags":
+        if args.list:
+            tags_list()
+        elif args.delete:
+            tags_delete(args.delete)
 
 if __name__ == "__main__":
     main()
