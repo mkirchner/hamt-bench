@@ -3,10 +3,10 @@ libhamt benchmarking tools
 
 ![Benchmark results](./benchmark.png)
 
-## Todos
+## Open Todos
 
-* allow experiment/benchmark tagging through argv
-* allow better input control for plotting script
+* Move `bench.sh` into the `bench` python script and finally control
+  benchmarking from a single script
 
 ## Install
 
