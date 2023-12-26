@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+
 import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import numpy as np
+import argparse
 
 
 def trim(arr, trim):
@@ -22,8 +25,11 @@ def subplots(i, j):
     return fig, axs
 
 
-def query_stats():
-    query = """SELECT product || ':' || gitcommit || ':' || substr(benchmark, 1, 4) as id, measurement, scale, repeat, ns FROM numbers;"""
+def query_stats(tag):
+    query = f"""SELECT product || ':' || gitcommit || ':' || substr(benchmark, 1, 4) as id,
+                      measurement, scale, repeat, ns
+               FROM numbers
+               WHERE tag = '{tag}';"""
     conn = sqlite3.connect("db/db.sqlite")
     df2 = pd.read_sql_query(query, conn)
     conn.close()
@@ -32,8 +38,8 @@ def query_stats():
     measurements = df2["measurement"].unique()
     return df2, labels, scales, measurements
 
-def create_plot():
-    df2, labels, scales, measurements = query_stats()
+def create_plot(tag):
+    df2, labels, scales, measurements = query_stats(tag)
     fig, axs = subplots(1, len(measurements))
     labels = sorted(labels)
 
@@ -82,7 +88,10 @@ def create_plot():
     fig.savefig("benchmark.png", dpi=300, bbox_inches='tight')
 
 def main():
-    create_plot()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("tag", help="plot all measurements tagged with this tag")
+    args = parser.parse_args()
+    create_plot(args.tag)
 
 if __name__ == "__main__":
     main()

@@ -31,4 +31,4 @@ select
 from
     numbers,
     (select avg(ns) as mu from numbers) as sub
-group by product, gitcommit, benchmark, measurement, scale;
+group by tag, product, gitcommit, benchmark, measurement, scale;
