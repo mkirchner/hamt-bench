@@ -23,7 +23,7 @@ for name in $@; do
             GIT_BRANCH=`(cd ../hamt && git branch --show-current)`
             GIT_COMMIT=`(cd ../hamt && git describe --always)`
             echo "hamt"
-            build/bench-hamt | sed -u -e "s/^/"$TAG","libhamt:$GIT_BRANCH",$GIT_COMMIT,/" > db/import.$$
+            build/bench-hamt | sed -u -e "s/^/\"$TAG\",\"libhamt:$GIT_BRANCH\",$GIT_COMMIT,/" > db/import.$$
             ;;
         glib)
             echo "glib-hashtable"

@@ -3,6 +3,185 @@ libhamt benchmarking tools
 
 ![Benchmark results](./benchmark.png)
 
+## Experiment status
+
+
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-c3ow" colspan="4">parameters</th>
+    <th class="tg-c3ow" colspan="5">ns/ops</th>
+    <th class="tg-c3ow" colspan="5">memory overhead</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-c3ow">cache</td>
+    <td class="tg-c3ow">cache param</td>
+    <td class="tg-c3ow">alloc</td>
+    <td class="tg-c3ow">hash</td>
+    <td class="tg-c3ow">1e3</td>
+    <td class="tg-c3ow">1e4</td>
+    <td class="tg-c3ow">1e5</td>
+    <td class="tg-c3ow">1e6</td>
+    <td class="tg-c3ow">1e7</td>
+    <td class="tg-c3ow">1e3</td>
+    <td class="tg-c3ow">1e4</td>
+    <td class="tg-c3ow">1e5</td>
+    <td class="tg-c3ow">1e6</td>
+    <td class="tg-c3ow">1e7</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky" rowspan="6">none</td>
+    <td class="tg-0pky" rowspan="6"></td>
+    <td class="tg-0pky" rowspan="2">malloc</td>
+    <td class="tg-0pky">murmur3</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">uh</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky" rowspan="2">BDW GC</td>
+    <td class="tg-0pky">murmur3</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky" colspan="5" rowspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">uh</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky" rowspan="2">dlmalloc</td>
+    <td class="tg-0pky">murmur3</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">uh</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky" rowspan="6">table cache</td>
+    <td class="tg-0pky" rowspan="6">2k init<br>2^n growth</td>
+    <td class="tg-0pky" rowspan="2">malloc</td>
+    <td class="tg-0pky">murmur3</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">uh</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky" rowspan="2">BDW GC</td>
+    <td class="tg-0pky">murmur3</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky" colspan="5" rowspan="2"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">uh</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky" rowspan="2">dlmalloc</td>
+    <td class="tg-0pky">murmur3</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">uh</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+  </tr>
+</tbody>
+</table>
+
 ## Open Todos
 
 * Move `bench.sh` into the `bench` python script and finally control
