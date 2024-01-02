@@ -1,16 +1,19 @@
 BUILD_DIR ?= ./build
-SRC_DIRS ?= ./src
+SRC_DIRS ?= ./src 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 LIB_DIRS := $(shell find $(SRC_DIRS) -type d)
 LIB_FLAGS := $(addprefix -L,$(LIB_DIRS))
 
+
 HAMT_BENCH_SRCS := \
 	lib/hamt/src/hamt.c \
 	lib/hamt/src/murmur3.c \
+	lib/hamt/src/uh.c \
 	src/hamt/bench.c \
 	src/utils.c \
-	src/numbers.c
+	src/numbers.c \
+	lib/dlmalloc/malloc.c
 
 HAMT_BENCH_OBJS := $(HAMT_BENCH_SRCS:%=$(BUILD_DIR)/%.o)
 HAMT_BENCH_DEPS := $(HAMT_BENCH_OBJS:.o=.d)
@@ -37,21 +40,9 @@ RB_BENCH_SRCS := \
 	src/utils.c \
 	src/numbers.c
 
-HAMT_PROFILE_SRCS := \
-	lib/hamt/src/hamt.c \
-	lib/hamt/src/murmur3.c \
-	src/hamt/profile.c \
-	src/utils.c \
-	src/words.c
-
-HAMT_PROFILE_OBJS := $(HAMT_PROFILE_SRCS:%=$(BUILD_DIR)/%.o)
-HAMT_PROFILE_DEPS := $(HAMT_PROFILE_OBJS:.o=.d)
-
-CCFLAGS ?= -MMD -MP -O3 # -g # -Rpass=tailcallelim
+CCFLAGS ?= -MMD -MP -O3 -g -DUSE_DL_PREFIX
 
 all: hamt glib hsearch avl rb
-
-profile: $(BUILD_DIR)/profile-hamt
 
 hamt: $(BUILD_DIR)/bench-hamt
 
@@ -65,7 +56,10 @@ hsearch: $(BUILD_DIR)/bench-hsearch
 
 $(BUILD_DIR)/bench-hamt: $(HAMT_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)
-	$(CC) $(CCFLAGS) $(CFLAGS) $(INC_FLAGS) -Ilib/hamt/include $(HAMT_BENCH_SRCS) -o $@ $(LDFLAGS) $(LIB_FLAGS) -lgc
+	$(CC) $(CCFLAGS) $(CFLAGS) $(INC_FLAGS) \
+		-Ilib/hamt/include -Ilib/dlmalloc \
+	    $(HAMT_BENCH_SRCS) -o $@ $(LDFLAGS) $(LIB_FLAGS) -lgc \
+		#-DWITH_TABLE_CACHE
 
 $(BUILD_DIR)/bench-glib: $(GLIB_BENCH_SRCS)
 	$(MKDIR_P) $(BUILD_DIR)

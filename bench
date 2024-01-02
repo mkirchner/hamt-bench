@@ -26,26 +26,34 @@ def subplots(i, j):
     return fig, axs
 
 
-def query_stats(tag):
-    query = f"""SELECT product || ':' || gitcommit || ':' || substr(benchmark, 1, 4) as id,
-                      measurement, scale, repeat, ns
-               FROM numbers
-               WHERE tag = '{tag}';"""
+def query_stats(tags):
+    # query = f"""SELECT product || ':' || gitcommit || ':' || substr(benchmark, 1, 4) as id,
+    #                   measurement, scale, repeat, ns
+    #            FROM numbers
+    #            WHERE tag = '{tag}';"""
+    tagset = ','.join([f"'{t}'" for t in tags])
+    query = f"""SELECT product as id, measurement, scale, repeat, ns
+               FROM numbers WHERE tag in ({tagset});"""
     conn = sqlite3.connect("db/db.sqlite")
     df2 = pd.read_sql_query(query, conn)
     conn.close()
-    labels = df2["id"].unique()
-    scales = df2["scale"].unique()
-    measurements = df2["measurement"].unique()
+    labels = list(df2["id"].unique())
+    scales = sorted(df2["scale"].unique())
+    # measurements = df2["measurement"].unique()
+    # FIXME: hardcoded sequence
+    measurements = ["query", "insert", "remove", "persistent_insert", "persistent_remove"]
+
     return df2, labels, scales, measurements
 
-def create_plot(tag, outfile, interactive):
-    df2, labels, scales, measurements = query_stats(tag)
+def create_plot(tags, outfile, interactive):
+    df2, labels, scales, measurements = query_stats(tags)
     fig, axs = subplots(1, len(measurements))
     labels = sorted(labels)
 
     # explicitly create default handle sequence
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    # start from the beginning if more lines than colors
+    colors.extend(colors)
     cmap = { label: i for i, label in enumerate(labels) }
     dhs = [ mlines.Line2D([], [], color=colors[i], label=label) for i, label in enumerate(labels)]
 
@@ -75,8 +83,6 @@ def create_plot(tag, outfile, interactive):
         axs[m_ix].set_xscale("log")
         axs[m_ix].set_ylim(0, 750)
         axs[m_ix].set_title(measurement)
-        #print("=======")
-        #print(handles)
         axs[m_ix].legend(handles=handles, fontsize=8, loc='upper left', frameon=False)
         axs[m_ix].spines[['right', 'top']].set_visible(False)
 
@@ -112,7 +118,7 @@ def main():
     # add -v and/or other global options before defining the subparsers here
 
     plot_parser = subparsers.add_parser("plot", help="plot benchmarking results")
-    plot_parser.add_argument("tag", help="plot all measurements tagged with this tag")
+    plot_parser.add_argument("tags", nargs='+', help="plot all measurements tagged with these tags")
     plot_parser.add_argument("-i", "--interactive", help="display image before storing", action="store_true")
     plot_parser.add_argument("-o", "--output", help="store the resulting plot to file", required=False, default=None)
 
@@ -128,7 +134,7 @@ def main():
         if not (args.interactive or args.output):
             plot_parser.error("require at least one of -i and/or -o options")
             exit(-1)
-        create_plot(args.tag, args.output, args.interactive)
+        create_plot(args.tags, args.output, args.interactive)
     elif args.command == "run":
         run_parser.error("Not implemented yet!")
     elif args.command == "tags":
